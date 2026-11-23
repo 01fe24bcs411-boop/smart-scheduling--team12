@@ -128,6 +128,8 @@ def test_conflict_shows_alternatives_and_accepting_one_works(tmp_path):
     rid2, check2 = full_booking(two)
     assert check2["status"] == "CONFLICT" and check2["conflicts"][0]["type"] == "TIME"
     assert check2["alternatives"][0]["resource_id"] == "R02"
+    alt = two.post("/api/alternatives", json={"request_id": rid2}).get_json()
+    assert alt["options"][0]["resource_id"] == "R02"
     # direct confirm of the clashing room is refused (409) and alternatives come back
     refused = two.post("/api/confirm", json={"request_id": rid2})
     assert refused.status_code == 409 and refused.get_json()["alternatives"]

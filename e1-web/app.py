@@ -3,6 +3,7 @@
 Flask web app + JSON API following Sprint 1 section 4.19:
   POST /api/requests    validate and register an event request
   POST /api/check       E3 conflict check (+ E5 alternatives when there is a clash)
+  POST /api/alternatives  E5 ranked alternatives for a request
   POST /api/confirm     E4 allocation and E2 commit (200 CONFIRMED / 409 REJECTED)
   POST /api/cancel      cancel own booking
   POST /api/resources   Admin only
@@ -170,6 +171,16 @@ def create_app(db_path=None, seed_demo=True):
         if result["status"] == "CONFLICT":
             result["alternatives"] = suggest_alternatives(conn(), req)
         return jsonify(result)
+
+    @app.post("/api/alternatives")
+    @needs("create_event")
+    def api_alternatives():
+        data = request.get_json(silent=True) or {}
+        req, err = own_request(data)
+        if err:
+            return err
+        return jsonify(request_id=data.get("requestId", data.get("request_id")),
+                       options=suggest_alternatives(conn(), req))
 
     @app.post("/api/confirm")
     @needs("create_event")
