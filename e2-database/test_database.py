@@ -155,3 +155,18 @@ def test_tc_e2_06_unsuitable_with_reason():
     assert small["suitable"] is False and "Capacity 50" in small["reason"]
     missing = db.check_resource_suitability(lab2, 10, ["microphone"])
     assert missing == {"suitable": False, "reason": "Missing: microphone"}
+
+
+def test_event_status_and_list_events():
+    conn = make_db()
+    org = db.add_user(conn, "Org", "o@x.test", "hash", "Organizer")
+    e1 = db.create_event(conn, org, "AI Hackathon", "Event", 55)
+    e2 = db.create_event(conn, org, "TCS Placement Drive", "Event", 45)
+    assert db.commit_booking(conn, e1, "R01", "12 Oct", "10:00", "13:00")["status"] == "COMMITTED"
+    db.set_event_status(conn, e2, "Conflict Detected")
+    db.set_event_status(conn, e1, "Rejected")              # a Confirmed event is never changed
+    rows = {r["title"]: r for r in db.list_events(conn)}
+    assert rows["AI Hackathon"]["status"] == "Confirmed" and rows["AI Hackathon"]["resource_id"] == "R01"
+    assert rows["TCS Placement Drive"]["status"] == "Conflict Detected"
+    assert rows["TCS Placement Drive"]["resource_id"] is None
+    assert db.list_events(conn, organizer_id=999) == []
