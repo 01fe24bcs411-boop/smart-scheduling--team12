@@ -1,4 +1,4 @@
-"""
+state-machine/booking_state.py"""
 Booking request state machine  (Sprint 1, Section 4.16 State Diagram, D6)
 
 States and transitions are copied one-to-one from the approved state table.
