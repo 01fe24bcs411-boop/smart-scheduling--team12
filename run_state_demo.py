@@ -1,4 +1,5 @@
-"""Prints a state trace for each scenario of the approved state diagram (4.16)."""
+state-machine/run_state_demo.py
+Prints a state trace for each scenario of the approved state diagram (4.16)."""
 from booking_state import BookingRequestState
 
 SCENARIOS = {
